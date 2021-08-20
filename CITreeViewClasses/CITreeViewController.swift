@@ -121,7 +121,9 @@ public class CITreeViewController: NSObject {
         }
         
         if indexPathsArray.count > 0 {
-            removeTreeViewNodesAtRange(from: (indexPathsArray.first?.row)!, to: (indexPathsArray.last?.row)!)
+            if let firstRow = indexPathsArray.first?.row, let lastRow = indexPathsArray.last?.row {
+                removeTreeViewNodesAtRange(from: firstRow, to: lastRow)
+            }
         }
     }
     
