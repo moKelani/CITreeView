@@ -74,13 +74,15 @@ public class CITreeViewController: NSObject {
         let children = self.treeViewControllerDelegate?.getChildren(for: selectedTreeViewNode.item, at: indexPath)
         indexPathsArray = [IndexPath]()
         var row = indexPath.row + 1
-        
-        if (children?.count)! > 0 {
+        guard let childrenList = children else {
+            return
+        }
+        if !childrenList.isEmpty {
             self.treeViewControllerDelegate?.willExpandTreeViewNode(selectedTreeViewNode, at: indexPath)
             setExpandTreeViewNode(atIndex: indexPath.row)
         }
         
-        for item in children!{
+        for item in childrenList {
             addIndexPath(withRow: row)
             insertTreeViewNode(parent: selectedTreeViewNode, with: item, to: row)
             setLevelTreeViewNode(atIndex: row, to: selectedTreeViewNode.level)
@@ -121,7 +123,9 @@ public class CITreeViewController: NSObject {
         }
         
         if indexPathsArray.count > 0 {
-            removeTreeViewNodesAtRange(from: (indexPathsArray.first?.row)!, to: (indexPathsArray.last?.row)!)
+            if let firstRow = indexPathsArray.first?.row, let lastRow = indexPathsArray.last?.row {
+                removeTreeViewNodesAtRange(from: firstRow, to: lastRow)
+            }
         }
     }
     

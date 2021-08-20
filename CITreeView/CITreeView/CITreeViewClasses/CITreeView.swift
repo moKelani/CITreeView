@@ -152,8 +152,10 @@ public class CITreeView: UITableView {
     func getAllCells() -> [UITableViewCell] {
         var cells = [UITableViewCell]()
         for section in 0 ..< self.numberOfSections{
-            for row in 0 ..< self.numberOfRows(inSection: section){
-                cells.append(self.cellForRow(at: IndexPath(row: row, section: section))!)
+            for row in 0 ..< self.numberOfRows(inSection: section) {
+                if let cell = cellForRow(at: IndexPath(row: row, section: section)) {
+                    cells.append(cell)
+                }
             }
         }
         return cells
@@ -174,15 +176,19 @@ extension CITreeView: UITableViewDelegate {
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let treeViewNode = treeViewController.getTreeViewNode(atIndex: indexPath.row)
-        return (self.treeViewDelegate?.treeView(tableView as! CITreeView, heightForRowAt: indexPath, with: treeViewNode))!
+        if let treeViewD = treeViewDelegate,  let treeView = tableView as? CITreeView {
+            return treeViewD.treeView(treeView, heightForRowAt: indexPath, with: treeViewNode)
+        }
+        return 0.0
+        
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedTreeViewNode = treeViewController.getTreeViewNode(atIndex: indexPath.row)
         guard let treeViewDelegate = self.treeViewDelegate else { return }
         
-        if let justSelectedTreeViewNode = selectedTreeViewNode {
-            treeViewDelegate.treeView(tableView as! CITreeView, didSelectRowAt: justSelectedTreeViewNode, at: indexPath)
+        if let justSelectedTreeViewNode = selectedTreeViewNode, let treeView = tableView as? CITreeView {
+            treeViewDelegate.treeView(treeView, didSelectRowAt: justSelectedTreeViewNode, at: indexPath)
             var willExpandIndexPath = indexPath
             if justSelectedTreeViewNode.expand {
                 treeViewController.collapseRows(for: justSelectedTreeViewNode, atIndexPath: indexPath)
@@ -218,7 +224,10 @@ extension CITreeView: UITableViewDataSource {
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let treeViewNode = treeViewController.getTreeViewNode(atIndex: indexPath.row)
-        return (self.treeViewDataSource?.treeView(tableView as! CITreeView, cellForRowAt: indexPath, with: treeViewNode))!
+        if let treeViewD = treeViewDataSource,  let treeView = tableView as? CITreeView {
+            return treeViewD.treeView(treeView, cellForRowAt: indexPath, with: treeViewNode)
+        }
+        return UITableViewCell()
     }
 }
 
